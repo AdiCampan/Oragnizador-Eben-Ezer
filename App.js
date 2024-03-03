@@ -1,36 +1,29 @@
-<<<<<<< HEAD
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { db } from './firebase';
-=======
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
->>>>>>> 9fada06cda21e98af7a70ac87ec613ebab07dd91
 
 export default function App() {
-const addPerson = ()=> {
-
-}
-
+  const addPerson = () =>{}
   return (
-<<<<<<< HEAD
-
-    <View style={styles.container}>
-      <TouchableOpacity style= {styles.button} onPress={addPerson}>
-        <Text>Adaugă</Text>
-      </TouchableOpacity>
-      <Text>Hola Mundo</Text>
-=======
     <LinearGradient
       style={styles.background}
       colors={["#4c669f", "#3b5998", "#192f6a"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
+       <StatusBar style="auto" />
       <Text>EBEN EZER </Text>
->>>>>>> 9fada06cda21e98af7a70ac87ec613ebab07dd91
-      <StatusBar style="auto" />
+      <TouchableOpacity onPress={addPerson}>
+    <LinearGradient
+      colors={["#004d40", "#009688"]}
+      style={styles.appButtonContainer}
+    >
+      <Text style={styles.appButtonText}>Adauga un utilizator
+    
+      </Text>
+    </LinearGradient>
+  </TouchableOpacity>
+     
     </LinearGradient>
   );
 }
@@ -41,11 +34,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  button:{
-    alignItems: "center",
-    backgroundColor:"grey",
-    borderRadius: 25,
-    height: 40,
-    width: 150
+  appButtonContainer: {
+    elevation: 8,
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12
+  },
+  appButtonText: {
+    fontSize: 18,
+    color: "#fff",
+    fontWeight: "bold",
+    alignSelf: "center",
+    textTransform: "uppercase"
   }
 });
