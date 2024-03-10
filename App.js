@@ -1,30 +1,34 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import {NavigationContainer} from '@react-navigation/native';
 
-export default function App() {
+export default function App({navigation}) {
   const addPerson = () =>{}
   return (
-    <LinearGradient
+    <NavigationContainer>
+      <LinearGradient
       style={styles.background}
       colors={["#4c669f", "#3b5998", "#192f6a"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-    >
+     >
        <StatusBar style="auto" />
       <Text>EBEN EZER </Text>
-      <TouchableOpacity onPress={addPerson}>
-    <LinearGradient
+      <TouchableOpacity onPress={() =>
+        navigation.navigate('Cantari')}>
+      <LinearGradient
       colors={["#004d40", "#009688"]}
       style={styles.appButtonContainer}
-    >
+      >
       <Text style={styles.appButtonText}>Adauga un utilizator
     
       </Text>
-    </LinearGradient>
-  </TouchableOpacity>
+      </LinearGradient>
+         </TouchableOpacity>
      
-    </LinearGradient>
+        </LinearGradient>
+    </NavigationContainer>
   );
 }
 
