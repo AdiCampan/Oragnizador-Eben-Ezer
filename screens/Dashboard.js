@@ -24,14 +24,7 @@ const Dashboard = () => {
           <Text style={styles.appButtonText}>Programe</Text>
         </LinearGradient>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate("AddProgram")}>
-        <LinearGradient
-          colors={["#004d40", "#009688"]}
-          style={styles.appButtonContainer}
-        >
-          <Text style={styles.appButtonText}>Adauga un program</Text>
-        </LinearGradient>
-      </TouchableOpacity>
+
       <TouchableOpacity onPress={() => navigation.navigate("Cantari")}>
         <LinearGradient
           colors={["#004d40", "#009688"]}
