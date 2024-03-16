@@ -72,7 +72,12 @@ const Programe = () => {
       <FlatList
         data={programs}
         renderItem={({ item }) => (
-          <Text style={styles.item}>{JSON.stringify(item.data)}</Text>
+          <Text
+            onPress={() => navigation.navigate("Program")}
+            style={styles.item}
+          >
+            {JSON.stringify(item.data)}
+          </Text>
         )}
         keyExtractor={(item) => item.id}
         ItemSeparatorComponent={myItemSeparator}
@@ -99,7 +104,7 @@ const Programe = () => {
               fontWeight: "bold",
             }}
           >
-            Thank You
+            EbenEzer-MEDIA-2024
           </Text>
         )}
       />
