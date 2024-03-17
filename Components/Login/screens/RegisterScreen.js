@@ -19,71 +19,40 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { useNavigation } from "@react-navigation/native";
-import { auth } from "../../../firebase";
+import { auth, database } from "../../../firebase";
 import { db } from "../../../firebase";
-import { ref, onValue, set } from "firebase/database";
+import { ref, onValue, set, push } from "firebase/database";
 import * as Crypto from "expo-crypto";
-// import { DRIVER_STATES } from "../../../constants";
 
 export default function RegisterScreen({ navigation }) {
   const [name, setName] = useState({ value: "", error: "" });
   const [email, setEmail] = useState({ value: "", error: "" });
   const [phone, setPhone] = useState({ value: "", error: "" });
-  const [password, setPassword] = useState({ value: "", error: "" });
   const [error, setError] = useState(null);
 
   const onSignUpPressed = () => {
     setError(null);
     const nameError = nameValidator(name.value);
     const emailError = emailValidator(email.value);
-    const phoneError = phoneValidator(phone.error);
-    const passwordError = passwordValidator(password.value);
-    if (emailError || passwordError || nameError) {
-      setPhone({ ...phone, error: phoneError });
+    const phoneError = phoneValidator(phone.value);
+    if (emailError || phoneError || nameError) {
       setName({ ...name, error: nameError });
       setEmail({ ...email, error: emailError });
-      setPassword({ ...password, error: passwordError });
+      setPhone({ ...phone, error: phoneError });
       return;
     }
-
-    createUserWithEmailAndPassword(auth, email.value, password.value)
-      .then((userCredential) => {
-        const user = userCredential.user;
-
-        const responsabil = {
-          name: name.value,
-          email: email.value,
-          phone: phone.value,
-          // state: DRIVER_STATES.INACTIVE.key,
-        };
-        // const driversRef = ref(db, `drivers/${user.uid}`);
-        // set(driversRef, driver)
-        //   .then((data) => {
-        //     console.log("driver added", data);
-        //     updateProfile(auth.currentUser, {
-        //       displayName: name.value,
-        //       photoURL: "https://example.com/jane-q-user/profile.jpg",
-        //     })
-        //       .then(() => {
-        //         // Profile updated!
-        //         // ...
-        //         navigation.reset({
-        //           index: 0,
-        //           routes: [{ name: "Dashboard" }],
-        //         });
-        //       })
-        //       .catch((error) => {
-        //         // An error occurred
-        //         // ...
-        //       });
-        //   })
-        //   .catch((err) => console.error(err));
+    const responsabiliRef = ref(database, "Responsabili");
+    push(responsabiliRef, {
+      nume: name.value,
+      email: email.value,
+      telefon: phone.value,
+    })
+      .then((dt) => {
+        console.log("dataID", dt);
       })
+      .catch((error) => console.error(error));
 
-      .catch((error) => {
-        console.log("register error", error);
-        setError(error.message);
-      });
+    navigation.navigate("Responsabili");
   };
 
   return (
