@@ -1,7 +1,7 @@
 import React from "react";
 import { StatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
 const Dashboard = () => {
@@ -14,6 +14,10 @@ const Dashboard = () => {
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
+      <Image
+        style={styles.logo}
+        source={require('../Components/Logotipos Finales/Símbolos/White/White.png')}
+      />
       <StatusBar style="auto" />
       <Text>EBEN EZER </Text>
       <TouchableOpacity onPress={() => navigation.navigate("Programe")}>
@@ -51,9 +55,15 @@ export default Dashboard;
 
 const styles = StyleSheet.create({
   background: {
+    
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+  },
+  logo: {
+    height: "50%",
+    width: "50%",
+    opacity: 0.5
   },
   appButtonContainer: {
     margin: 5,
