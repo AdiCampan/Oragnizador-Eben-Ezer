@@ -6,9 +6,12 @@ import Button from "../components/Button";
 import Paragraph from "../components/Paragraph";
 import { auth } from "../../../firebase";
 import { onAuthStateChanged } from "firebase/auth";
+import { Image, StyleSheet } from "react-native";
 
 export default function StartScreen({ navigation }) {
   const [user, setUser] = useState();
+
+  const image = require("../../Logotipos Finales/Logotipos/Color/Color.png");
 
   // const getUser = () => {
   //   actualUser = ;
@@ -20,29 +23,29 @@ export default function StartScreen({ navigation }) {
   // }, [user]);
   // console.log(user);
 
-  useEffect(() => {
-    onAuthStateChanged(auth, (authUser) => {
-      if (authUser) {
-        setUser(authUser);
-        console.log("state changed");
-      }
-    });
-  }, []);
+  // useEffect(() => {
+  //   onAuthStateChanged(auth, (authUser) => {
+  //     if (authUser) {
+  //       setUser(authUser);
+  //       console.log("state changed");
+  //     }
+  //   });
+  // }, []);
 
-  useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", () => {
-      console.log("focus");
-      if (user) {
-        navigation.navigate("Dashboard");
-      }
-    });
+  // useEffect(() => {
+  //   const unsubscribe = navigation.addListener("focus", () => {
+  //     console.log("focus");
+  //     if (user) {
+  //       navigation.navigate("Dashboard");
+  //     }
+  //   });
 
-    return unsubscribe;
-  }, [navigation]);
+  //   return unsubscribe;
+  // }, [navigation]);
 
   return (
     <Background>
-      <Logo />
+      <Image source={image} style={styles.image} />
       {/* <Header>Login Template</Header>
       <Paragraph>
         The easiest way to start with your amazing application.
@@ -62,3 +65,9 @@ export default function StartScreen({ navigation }) {
     </Background>
   );
 }
+const styles = StyleSheet.create({
+  image: {
+    height: 300,
+    width: 300,
+  },
+});

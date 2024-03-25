@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { View, StyleSheet, TouchableOpacity } from "react-native";
+import { View, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { Text } from "react-native-paper";
 import Background from "../components/Background";
 import Logo from "../components/Logo";
 import Header from "../components/Header";
 import Button from "../components/Button";
 import TextInput from "../components/TextInput";
-import BackButton from "../components/BackButton";
+// import BackButton from "../components/BackButton";
 import { theme } from "../core/theme";
 import { emailValidator } from "../helpers/emailValidator";
 import { passwordValidator } from "../helpers/passwordValidator";
@@ -19,54 +19,94 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { useNavigation } from "@react-navigation/native";
-import { auth, database } from "../../../firebase";
-import { db } from "../../../firebase";
-import { ref, onValue, set, push } from "firebase/database";
+import { auth, database, db } from "../../../firebase";
+import { ref, onValue, set } from "firebase/database";
 import * as Crypto from "expo-crypto";
+import BackButton from "../components/BackButton";
 
 export default function RegisterScreen({ navigation }) {
   const [name, setName] = useState({ value: "", error: "" });
   const [email, setEmail] = useState({ value: "", error: "" });
-  const [phone, setPhone] = useState({ value: "", error: "" });
+  const [phoneNumber, setPhoneNumber] = useState({ value: "", error: "" });
+  const [password, setPassword] = useState({ value: "", error: "" });
   const [error, setError] = useState(null);
+
+  const image = require("../../Logotipos Finales/Logotipos/Color/Color.png");
 
   const onSignUpPressed = () => {
     setError(null);
     const nameError = nameValidator(name.value);
     const emailError = emailValidator(email.value);
-    const phoneError = phoneValidator(phone.value);
-    if (emailError || phoneError || nameError) {
+    const passwordError = passwordValidator(password.value);
+    const phoneError = phoneValidator(phoneNumber.value);
+    if (emailError || passwordError || nameError || phoneError) {
       setName({ ...name, error: nameError });
       setEmail({ ...email, error: emailError });
-      setPhone({ ...phone, error: phoneError });
+      setPhoneNumber({ ...phoneNumber, error: phoneError });
+      setPassword({ ...password, error: passwordError });
       return;
     }
-    const responsabiliRef = ref(database, "Responsabili");
-    push(responsabiliRef, {
-      nume: name.value,
-      email: email.value,
-      telefon: phone.value,
-    })
-      .then((dt) => {
-        console.log("dataID", dt);
-      })
-      .catch((error) => console.error(error));
 
-    navigation.navigate("Responsabili");
+    createUserWithEmailAndPassword(auth, email.value, password.value)
+      .then((userCredential) => {
+        const user = userCredential.user;
+
+        const usuario = {
+          name: name.value,
+          email: email.value,
+          phoneNumber: phoneNumber.value,
+          role: "unauthorized",
+        };
+        const usersRef = ref(database, `Usuarios/${user.uid}`);
+        set(usersRef, usuario)
+          .then((data) => {
+            // console.log("user uid", user.uid);
+
+            updateProfile(auth.currentUser, {
+              displayName: name.value,
+              phoneNumber: phoneNumber.value,
+              photoURL: "https://example.com/jane-q-user/profile.jpg",
+            })
+              .then(() => {
+                // Profile updated!
+                // ...
+                navigation.navigate("LoginDashboard");
+              })
+              .catch((error) => {
+                // An error occurred
+                // ...
+              });
+          })
+          .catch((err) => console.error(err));
+      })
+
+      .catch((error) => {
+        console.log("register error", error);
+        setError(error.message);
+      });
   };
 
   return (
     <Background>
-      <BackButton goBack={navigation.goBack} />
-      {/* <Logo /> */}
-      <Header>Create Account</Header>
+      {/* <BackButton goBack={navigation.goBack} /> */}
+      <Image source={image} style={styles.image} />
+
+      {/* <Header>Create Account</Header> */}
       <TextInput
-        label="Nume"
+        label="Numele complet"
         returnKeyType="next"
         value={name.value}
         onChangeText={(text) => setName({ value: text, error: "" })}
         error={!!name.error}
         errorText={name.error}
+      />
+      <TextInput
+        label="Telefon"
+        returnKeyType="next"
+        value={phoneNumber.value}
+        onChangeText={(text) => setPhoneNumber({ value: text, error: "" })}
+        error={!!phoneNumber.error}
+        errorText={phoneNumber.error}
       />
       <TextInput
         label="Email"
@@ -81,24 +121,14 @@ export default function RegisterScreen({ navigation }) {
         keyboardType="email-address"
       />
       <TextInput
-        label="Telefon"
-        returnKeyType="next"
-        value={phone.value}
-        onChangeText={(text) => setPhone({ value: text, error: "" })}
-        error={!!phone.error}
-        errorText={phone.error}
-        autoCapitalize="none"
-        keyboardType="number-pad"
-      />
-      {/* <TextInput
-        label="Password"
+        label="Parola"
         returnKeyType="done"
         value={password.value}
         onChangeText={(text) => setPassword({ value: text, error: "" })}
         error={!!password.error}
         errorText={password.error}
         secureTextEntry
-      /> */}
+      />
       <Button
         mode="contained"
         onPress={onSignUpPressed}
@@ -107,10 +137,10 @@ export default function RegisterScreen({ navigation }) {
         Sign Up
       </Button>
       <View style={styles.row}>
-        {/* <Text>Already have an account? </Text>
+        <Text>Already have an account? </Text>
         <TouchableOpacity onPress={() => navigation.replace("LoginScreen")}>
           <Text style={styles.link}>Login</Text>
-        </TouchableOpacity> */}
+        </TouchableOpacity>
       </View>
       {error && (
         <View>
@@ -129,5 +159,9 @@ const styles = StyleSheet.create({
   link: {
     fontWeight: "bold",
     color: theme.colors.primary,
+  },
+  image: {
+    height: 100,
+    width: 100,
   },
 });

@@ -7,53 +7,39 @@ import Button from "../components/Button";
 import { db } from "../../../firebase";
 import { ref, onValue, set } from "firebase/database";
 import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
+import { Image, StyleSheet } from "react-native";
 // import { auth } from "../../../firebase";
 
 export default function Dashboard({ navigation }) {
   const auth = getAuth();
-  const user = auth.currentUser;
+  const currentUser = auth.currentUser;
 
-  const [driver, setDriver] = useState();
-  const [name, setName] = useState();
+  const [user, setUser] = useState("");
 
-  const getDriver = () => {
-    if (user !== null) {
-      // The user object has basic properties such as display name, email, etc.
-      const displayName = user.displayName;
-      const email = user.email;
-      const photoURL = user.photoURL;
-      const emailVerified = user.emailVerified;
+  const image = require("../../Logotipos Finales/Logotipos/Color/Color.png");
 
-      // The user's ID, unique to the Firebase project. Do NOT use
-      // this value to authenticate with your backend server, if
-      // you have one. Use User.getToken() instead.
-      const uid = user.uid;
-    }
-    setName(user?.displayName);
-    const driversRef = ref(db, "drivers");
-    onValue(driversRef, (snapshot) => {
-      const tmpArray = [];
+  const getUser = () => {
+    const usersRef = ref(database, `Usuarios/${currentUser.uid}`);
+    onValue(usersRef, (snapshot) => {
+      const grup = snapshot.val();
 
-      snapshot.forEach((childSnapshot) => {
-        const childKey = childSnapshot.key;
-        const childData = childSnapshot.val();
-
-        tmpArray.push({ id: childKey, ...childData });
-      });
-      if (tmpArray && user) {
-        const actualDriver = tmpArray.find((driver) => driver.id === user.uid);
-        setDriver(actualDriver);
-      }
+      setUser(grup);
     });
   };
   useEffect(() => {
-    getDriver();
+    getUser;
   }, []);
 
+  useEffect(() => {
+    if (user.role === "user") {
+      navigation.navigate("Dashboard");
+    }
+  }, [user]);
+
   function handlerLogout() {
-    setDriver("");
+    setUser("");
     signOut(auth).then(() => {
-      console.log("signed out", user, driver);
+      console.log("signed out");
     });
     navigation.reset({
       index: 0,
@@ -61,37 +47,23 @@ export default function Dashboard({ navigation }) {
     });
   }
 
-  useEffect(() => {
-    if (driver?.private?.state === "online") {
-      navigation.navigate("Settings");
-    }
-  }, [driver]);
-
-  useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", () => {
-      if (driver?.private?.state === "online") {
-        navigation.navigate("Settings");
-      } else {
-        navigation.navigate("DashBoard");
-      }
-    });
-
-    return unsubscribe;
-  }, [navigation, driver]);
-
-  console.log("driver", user);
+  console.log("usuario", user);
 
   return (
     <Background>
-      <Logo />
-      <Header>{driver ? driver.name : ""}</Header>
-      <Paragraph>
-        Asteapta sa fii AUTORIZAT de MaroviTaxi. Contacteaza telefonic
-        dispeceratul.
-      </Paragraph>
+      <Image source={image} style={styles.image} />
+      {/* <Header>{driver ? driver.name : ""}</Header> */}
+      <Paragraph>Asteapta sa fii AUTORIZAT !</Paragraph>
       <Button mode="outlined" onPress={handlerLogout}>
         Logout
       </Button>
     </Background>
   );
 }
+
+const styles = StyleSheet.create({
+  image: {
+    height: 100,
+    width: 100,
+  },
+});

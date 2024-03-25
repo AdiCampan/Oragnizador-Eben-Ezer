@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   FlatList,
   StyleSheet,
@@ -5,20 +6,19 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect, useState } from "react";
-import { onValue, push, ref } from "firebase/database";
-import { database } from "../firebase";
 import { LinearGradient } from "expo-linear-gradient";
+import { onValue, ref, set } from "firebase/database";
+import { database } from "../firebase";
 import { useNavigation } from "@react-navigation/native";
 
-const Responsabili = () => {
+const Grupuri = () => {
   const navigation = useNavigation();
 
-  const [responsabili, setResponsabili] = useState();
+  const [grupuri, setGrupuri] = useState();
 
-  const getResponsabili = () => {
-    const responsabiliRef = ref(database, "Responsabili/");
-    onValue(responsabiliRef, (snapshot) => {
+  const getGrupuri = () => {
+    const grupuriRef = ref(database, "Grupuri/");
+    onValue(grupuriRef, (snapshot) => {
       const tmpArray = [];
       snapshot.forEach((childSnapshot) => {
         const childKey = childSnapshot.key;
@@ -26,13 +26,14 @@ const Responsabili = () => {
 
         tmpArray.push({ id: childKey, ...childData });
       });
-      const listOfResponsabili = tmpArray;
-      setResponsabili(listOfResponsabili);
+      const grupuri = tmpArray;
+
+      setGrupuri(grupuri);
     });
   };
 
   useEffect(() => {
-    getResponsabili();
+    getGrupuri();
   }, []);
 
   const myItemSeparator = () => {
@@ -42,6 +43,7 @@ const Responsabili = () => {
       />
     );
   };
+
   const myListEmpty = () => {
     return (
       <View style={{ alignItems: "center" }}>
@@ -52,15 +54,23 @@ const Responsabili = () => {
 
   return (
     <View>
+      <Text>GRUPURI DE CANTARI</Text>
+      <TouchableOpacity onPress={() => navigation.navigate("AddGrup")}>
+        <LinearGradient
+          colors={["#004d40", "#009688"]}
+          style={styles.appButtonContainer}
+        >
+          <Text style={styles.appButtonText}>Adauga un grup </Text>
+        </LinearGradient>
+      </TouchableOpacity>
       <FlatList
-        data={responsabili}
+        data={grupuri}
         renderItem={({ item }) => (
           <Text
-            onPress={() => navigation.navigate("Responsabil")}
+            onPress={() => navigation.navigate("Grup", { grupId: item.id })}
             style={styles.item}
           >
-            {JSON.stringify(item.nume)} Telefon:
-            {JSON.stringify(item.telefon)}
+            {item.name}
           </Text>
         )}
         keyExtractor={(item) => item.id}
@@ -76,7 +86,7 @@ const Responsabili = () => {
               textDecorationLine: "underline",
             }}
           >
-            Lista de Responsabili
+            Grupuri create
           </Text>
         )}
         ListFooterComponent={() => (
@@ -92,25 +102,37 @@ const Responsabili = () => {
           </Text>
         )}
       />
-
-      <TouchableOpacity onPress={() => navigation.navigate("RegisterScreen")}>
-        <LinearGradient
-          colors={["#560CCE", "#dda0dd"]}
-          style={styles.appButtonContainer}
-        >
-          <Text style={styles.appButtonText}>Adauga un Responsabil</Text>
-        </LinearGradient>
-      </TouchableOpacity>
     </View>
   );
 };
 
-export default Responsabili;
+export default Grupuri;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    marginTop: 5,
+    fontSize: 30,
+  },
+  item: {
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.36,
+    shadowRadius: 6.68,
+    elevation: 11,
+
+    width: "96%",
+    backgroundColor: "#e6e6fa",
+    padding: 20,
+    marginTop: 5,
+    fontSize: 20,
+  },
   appButtonContainer: {
     margin: 5,
-    elevation: 8,
+    elevation: 15,
     borderRadius: 15,
     paddingVertical: 10,
     paddingHorizontal: 12,
@@ -121,11 +143,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     alignSelf: "center",
     textTransform: "uppercase",
-  },
-  item: {
-    backgroundColor: "#dcdcdc",
-    padding: 20,
-    marginTop: 5,
-    fontSize: 20,
   },
 });

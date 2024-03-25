@@ -17,9 +17,6 @@ const Programe = () => {
   const navigation = useNavigation();
 
   const [programs, setPrograms] = useState();
-  const [data, setData] = useState(new Date());
-  const [ampm, setAmpm] = useState();
-  const [day, setDay] = useState();
 
   const getPrograme = () => {
     const programeRef = ref(database, "Programe/");
@@ -41,9 +38,6 @@ const Programe = () => {
     getPrograme();
   }, []);
 
-  // const programsList = programs.map((program) => {
-  //   program;
-  // });
   const myItemSeparator = () => {
     return (
       <View
@@ -73,7 +67,9 @@ const Programe = () => {
         data={programs}
         renderItem={({ item }) => (
           <Text
-            onPress={() => navigation.navigate("Program")}
+            onPress={() =>
+              navigation.navigate("Program", { programId: item.id })
+            }
             style={styles.item}
           >
             {JSON.stringify(item.data)}
@@ -121,13 +117,24 @@ const styles = StyleSheet.create({
     fontSize: 30,
   },
   item: {
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.36,
+    shadowRadius: 6.68,
+    elevation: 11,
+
+    width: "96%",
+    backgroundColor: "#e6e6fa",
     padding: 20,
     marginTop: 5,
     fontSize: 20,
   },
   appButtonContainer: {
     margin: 5,
-    elevation: 8,
+    elevation: 15,
     borderRadius: 15,
     paddingVertical: 10,
     paddingHorizontal: 12,

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TouchableOpacity, StyleSheet, View } from "react-native";
+import { TouchableOpacity, StyleSheet, View, Image } from "react-native";
 import { Text } from "react-native-paper";
 import Background from "../components/Background";
 import Logo from "../components/Logo";
@@ -20,8 +20,10 @@ import { useNavigation } from "@react-navigation/native";
 import { auth } from "../../../firebase";
 
 export default function LoginScreen({ navigation }) {
-  const [email, setEmail] = useState({ value: "marius@gmail.com", error: "" });
+  const [email, setEmail] = useState({ value: "adi@gmail.com", error: "" });
   const [password, setPassword] = useState({ value: "111111", error: "" });
+
+  const image = require("../../Logotipos Finales/Logotipos/Color/Color.png");
 
   const onLoginPressed = () => {
     const emailError = emailValidator(email.value);
@@ -34,8 +36,8 @@ export default function LoginScreen({ navigation }) {
     signInWithEmailAndPassword(auth, email.value, password.value)
       .then((userCredential) => {
         const user = userCredential.user;
-
-        navigation.navigate("MyTabs", { screen: "DashBoard" });
+        console.log(user);
+        navigation.navigate("Dashboard");
       })
       .catch((error) => {
         alert(error.message);
@@ -46,7 +48,8 @@ export default function LoginScreen({ navigation }) {
   return (
     <Background>
       {/* <BackButton goBack={navigation.goBack} /> */}
-      <Logo />
+      <Image source={image} style={styles.image} />
+
       <Header>Welcome back.</Header>
       <TextInput
         label="Email"
@@ -106,5 +109,9 @@ const styles = StyleSheet.create({
   link: {
     fontWeight: "bold",
     color: theme.colors.primary,
+  },
+  image: {
+    height: 300,
+    width: 300,
   },
 });
