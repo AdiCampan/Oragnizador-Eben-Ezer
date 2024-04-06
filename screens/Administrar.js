@@ -10,12 +10,15 @@ import { onValue, push, ref } from "firebase/database";
 import { database } from "../firebase";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
+import { Button } from "react-native-paper";
 
 const Administrar = () => {
   const navigation = useNavigation();
 
   const [pendings, setPendings] = useState([]);
   const [users, setUsers] = useState();
+  const [autorizati, setAutorizati] = useState(false);
+  const [noAutorizati, setNoAutorizati] = useState(false);
 
   const getPendings = () => {
     const pendingsRef = ref(database, "Usuarios/");
@@ -27,8 +30,10 @@ const Administrar = () => {
 
         tmpArray.push({ id: childKey, ...childData });
       });
-      const listOfPendings = tmpArray.filter((user) => user.role === "0");
-      const acceptedUsers = tmpArray.filter((user) => user.role === "1");
+      const listOfPendings = tmpArray.filter((user) => user.role === 0);
+      const acceptedUsers = tmpArray.filter(
+        (user) => user.role === 1 || user.role === 3
+      );
       setUsers(acceptedUsers);
       setPendings(listOfPendings);
     });
@@ -57,62 +62,69 @@ const Administrar = () => {
 
   return (
     <View>
-      <FlatList
-        data={users}
-        renderItem={({ item }) => (
-          <Text
-            onPress={() => navigation.navigate("User", { user: item })}
-            style={styles.item}
-          >
-            {JSON.stringify(item.name)} Telefon:
-            {JSON.stringify(item.phoneNumber)}
-          </Text>
-        )}
-        keyExtractor={(item) => item.id}
-        ItemSeparatorComponent={myItemSeparator}
-        ListEmptyComponent={myListEmpty}
-        ListHeaderComponent={() => (
-          <Text
-            style={{
-              fontSize: 20,
-              textAlign: "center",
-              marginTop: 20,
-              fontWeight: "bold",
-              textDecorationLine: "underline",
-            }}
-          >
-            Autorizati
-          </Text>
-        )}
-      />
-      <FlatList
-        data={pendings}
-        renderItem={({ item }) => (
-          <Text
-            onPress={() => navigation.navigate("User", { user: item })}
-            style={styles.item}
-          >
-            {JSON.stringify(item.name)} Telefon:
-            {JSON.stringify(item.phoneNumber)}
-          </Text>
-        )}
-        keyExtractor={(item) => item.id}
-        ItemSeparatorComponent={myItemSeparator}
-        ListEmptyComponent={myListEmpty}
-        ListHeaderComponent={() => (
-          <Text
-            style={{
-              fontSize: 20,
-              textAlign: "center",
-              marginTop: 20,
-              fontWeight: "bold",
-              textDecorationLine: "underline",
-            }}
-          >
-            Neautorizati
-          </Text>
-        )}
-      />
+      <Button onPress={() => setAutorizati(!autorizati)}>AUTORIZATI</Button>
+      <Button onPress={() => setNoAutorizati(!noAutorizati)}>
+        NEAUTORIZATI
+      </Button>
+
+      {autorizati && (
+        <FlatList
+          data={users}
+          renderItem={({ item }) => (
+            <Text
+              onPress={() => navigation.navigate("User", { user: item })}
+              style={styles.item}
+            >
+              {JSON.stringify(item.name)} Telefon:
+              {JSON.stringify(item.phoneNumber)}
+            </Text>
+          )}
+          keyExtractor={(item) => item.id}
+          ItemSeparatorComponent={myItemSeparator}
+          ListEmptyComponent={myListEmpty}
+          ListHeaderComponent={() => (
+            <Text
+              style={{
+                fontSize: 20,
+                textAlign: "center",
+                marginTop: 20,
+                fontWeight: "bold",
+              }}
+            >
+              Autorizati
+            </Text>
+          )}
+        />
+      )}
+      {noAutorizati && (
+        <FlatList
+          data={pendings}
+          renderItem={({ item }) => (
+            <Text
+              onPress={() => navigation.navigate("User", { user: item })}
+              style={styles.item}
+            >
+              {JSON.stringify(item.name)} Telefon:
+              {JSON.stringify(item.phoneNumber)}
+            </Text>
+          )}
+          keyExtractor={(item) => item.id}
+          ItemSeparatorComponent={myItemSeparator}
+          ListEmptyComponent={myListEmpty}
+          ListHeaderComponent={() => (
+            <Text
+              style={{
+                fontSize: 20,
+                textAlign: "center",
+                marginTop: 20,
+                fontWeight: "bold",
+              }}
+            >
+              Neautorizati
+            </Text>
+          )}
+        />
+      )}
 
       <TouchableOpacity onPress={() => navigation.navigate("RegisterScreen")}>
         <LinearGradient
