@@ -14,6 +14,8 @@ import { SimpleLineIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { onValue, ref } from "firebase/database";
 import { database } from "../firebase";
+import { Feather } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
 
 const Programari = () => {
   const navigation = useNavigation();
@@ -22,14 +24,14 @@ const Programari = () => {
   const [modalVisible, setModalVisible] = useState(false);
 
   const [program, setProgram] = useState();
-  const [voci, setVoci] = useState([]);
-  const [pian, setPian] = useState([]);
-  const [orga, setOrga] = useState([]);
-  const [chitara, setChitara] = useState([]);
-  const [bass, setBass] = useState([]);
+  const [voci, setVoci] = useState();
+  const [pian, setPian] = useState();
+  const [orga, setOrga] = useState();
+  const [chitara, setChitara] = useState();
+  const [bass, setBass] = useState();
   const [tobe, setTobe] = useState();
-  const [projector, setProjector] = useState([]);
-  const [audioMixer, setAudioMixer] = useState([]);
+  const [projector, setProjector] = useState();
+  const [audioMixer, setAudioMixer] = useState();
 
   const myItemSeparator = () => {
     return (
@@ -52,20 +54,18 @@ const Programari = () => {
     onValue(programRef, async (snapshot) => {
       const programSnapshot = await snapshot.val();
       setProgram(programSnapshot);
-      setVoci(programSnapshot.voci);
-      setPian(programSnapshot.pian);
-      setOrga(programSnapshot.orga);
-      setChitara(programSnapshot.chitara);
-      setBass(programSnapshot.bass);
-      setTobe(programSnapshot.tobe);
-      setProjector(programSnapshot.projector);
-      setAudioMixer(programSnapshot.audioMixer);
+      setVoci(programSnapshot.voci?.map((voce) => voce.id));
+      setPian(programSnapshot.pian?.map((pian) => pian.id));
+      setOrga(programSnapshot.orga?.map((orga) => orga.id));
+      setChitara(programSnapshot.chitara?.map((chitara) => chitara.id));
+      setBass(programSnapshot.bass?.map((bass) => bass.id));
+      setTobe(programSnapshot.tobe?.map((tobe) => tobe.id));
+      setProjector(programSnapshot.projector?.map((projector) => projector.id));
+      setAudioMixer(programSnapshot?.audioMixer?.map((mixer) => mixer.id));
     });
     setModalVisible(true);
   };
-
-  console.log("voci", voci);
-
+  // console.log("program", program.pian);
   const closeProgram = () => {
     setProgram(undefined);
     setModalVisible(!modalVisible);
@@ -113,46 +113,47 @@ const Programari = () => {
       data: audioMixerSet,
     },
   ];
+  console.log("pian", pian);
   //Buscamos el nombre de user por el ID de "voci' (desde "Programe")
   if (users && program) {
     for (let user of users) {
       for (let item of voci ? voci : []) {
-        if (user.id === item.id) {
+        if (user.id === item) {
           vociSet.push(user.name);
         }
       }
       for (let item of pian ? pian : []) {
-        if (user.id === item.id) {
+        if (user.id === item) {
           pianSet.push(user.name);
         }
       }
       for (let item of orga ? orga : []) {
-        if (user.id === item.id) {
+        if (user.id === item) {
           orgaSet.push(user.name);
         }
       }
       for (let item of chitara ? chitara : []) {
-        if (user.id === item.id) {
+        if (user.id === item) {
           chitaraSet.push(user.name);
         }
       }
       for (let item of bass ? bass : []) {
-        if (user.id === item.id) {
+        if (user.id === item) {
           bassSet.push(user.name);
         }
       }
       for (let item of tobe ? tobe : []) {
-        if (user.id === item.id) {
+        if (user.id === item) {
           tobeSet.push(user.name);
         }
       }
       for (let item of projector ? projector : []) {
-        if (user.id === item.id) {
+        if (user.id === item) {
           proiectorSet.push(user.name);
         }
       }
       for (let item of audioMixer ? audioMixer : []) {
-        if (user.id === item.id) {
+        if (user.id === item) {
           audioMixerSet.push(user.name);
         }
       }
@@ -218,6 +219,13 @@ const Programari = () => {
                     renderItem={({ item }) => (
                       <View style={styles.taskItemView}>
                         <Text style={styles.taskItem}>{item}</Text>
+                        {item.confi}
+                        <Feather name="check" size={24} color="black" />
+                        <AntDesign
+                          name="exclamationcircleo"
+                          size={24}
+                          color="black"
+                        />
                       </View>
                     )}
                     renderSectionHeader={({ section: { title } }) => (

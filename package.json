@@ -37,6 +37,7 @@
     "react-native-dropdown-select-list": "^2.0.5",
     "react-native-element-dropdown": "^2.10.4",
     "react-native-expo-modal-select": "^0.1.4",
+    "react-native-get-random-values": "^1.11.0",
     "react-native-linear-gradient": "^2.8.3",
     "react-native-multi-selectbox": "^1.5.0",
     "react-native-paper": "^5.12.3",
@@ -47,7 +48,8 @@
     "react-native-svg": "^12.1.0",
     "react-native-switch-selector": "^2.3.0",
     "react-native-vector-icons": "^10.0.3",
-    "toggle-switch-react-native": "^3.3.0"
+    "toggle-switch-react-native": "^3.3.0",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

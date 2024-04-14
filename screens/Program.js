@@ -63,7 +63,7 @@ const Program = () => {
       setBass(programSnapshot.bass?.map((bass) => bass.id));
       setTobe(programSnapshot.tobe?.map((tobe) => tobe.id));
       setProjector(programSnapshot.projector?.map((projector) => projector.id));
-      setAudioMixer(programSnapshot.audioMixer?.map((mixer) => mixer.id));
+      setAudioMixer(programSnapshot?.audioMixer?.map((mixer) => mixer.id));
     });
   }, []);
 
@@ -84,73 +84,8 @@ const Program = () => {
 
     navigation.navigate("Programe");
   };
-  //Anadimos "particip" a las personas que seteamos al "program"
-
-  // useEffect(() => {
-  //   const newCustomValues = voci?.map((elemento) => ({
-  //     id: elemento,
-  //     particip: false,
-  //   }));
-  //   setVociModificate(newCustomValues);
-  // }, [voci]);
-
-  // useEffect(() => {
-  //   const newCustomValues = pian?.map((elemento) => ({
-  //     id: elemento,
-  //     particip: false,
-  //   }));
-  //   setPianModificate(newCustomValues);
-  // }, [pian]);
-
-  // useEffect(() => {
-  //   const newCustomValues = orga?.map((elemento) => ({
-  //     id: elemento,
-  //     particip: false,
-  //   }));
-  //   setOrgaModificate(newCustomValues);
-  // }, [orga]);
-
-  // useEffect(() => {
-  //   const newCustomValues = chitara?.map((elemento) => ({
-  //     id: elemento,
-  //     particip: false,
-  //   }));
-  //   setChitaraModificate(newCustomValues);
-  // }, [chitara]);
-
-  // useEffect(() => {
-  //   const newCustomValues = tobe?.map((elemento) => ({
-  //     id: elemento,
-  //     particip: false,
-  //   }));
-  //   setTobeModificate(newCustomValues);
-  // }, [tobe]);
-
-  // useEffect(() => {
-  //   const newCustomValues = bass?.map((elemento) => ({
-  //     id: elemento,
-  //     particip: false,
-  //   }));
-  //   setBassModificate(newCustomValues);
-  // }, [bass]);
-
-  // useEffect(() => {
-  //   const newCustomValues = projector?.map((elemento) => ({
-  //     id: elemento,
-  //     particip: false,
-  //   }));
-  //   setProjectorModificate(newCustomValues);
-  // }, [projector]);
-
-  // useEffect(() => {
-  //   const newCustomValues = audioMixer?.map((elemento) => ({
-  //     id: elemento,
-  //     particip: false,
-  //   }));
-  //   setAudioMixerModificate(newCustomValues);
-  // }, [audioMixer]);
-
   useEffect(() => {
+    //Anadimos "particip:false" a las personas que seteamos al "program"
     const transformarDatos = (datos) => {
       return datos?.map((elemento) => ({
         id: elemento,

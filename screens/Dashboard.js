@@ -16,9 +16,21 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { getAuth, signOut } from "firebase/auth";
 import { database } from "../firebase";
-import { ref, onValue, update } from "firebase/database";
+import {
+  onValue,
+  update,
+  set,
+  child,
+  ref,
+  orderByChild,
+  equalTo,
+  query,
+  startAt,
+  endAt,
+} from "firebase/database";
 import { SimpleLineIcons } from "@expo/vector-icons";
 import { StateContext } from "../context";
+import { v4 as uuidv4 } from "uuid";
 
 const Dashboard = () => {
   const [users, setUsers, grupuri, setGrupuri, programe] =
@@ -44,24 +56,31 @@ const Dashboard = () => {
       .catch((err) => console.error(err));
   }, [disponibil]);
 
-  const userProgrammed = () => {
-    let data = [];
-    for (let i = 0; i < programe.length; i++) {
-      let keys = Object.keys(programe[i]); // Obtener todas las claves del objeto actual
-      for (let j = 0; j < keys.length; j++) {
-        let key = keys[j];
-        if (programe[i][key].includes(userId)) {
-          data.push(programe[i].data);
-          setProgramedInPrograms(data);
-          setModalVisible(true);
-          break; // Si encuentra el userId en alguna clave, sal del bucle interno
+  useEffect(() => {
+    // Función para verificar si un ID está presente en un arreglo y retornar la propiedad
+    const contieneIdYPropiedad = (propiedad, subarreglo) => {
+      if (
+        Array.isArray(subarreglo) &&
+        subarreglo.some((objeto) => objeto.id === userId)
+      ) {
+        return propiedad;
+      }
+    };
+
+    // Filtrar programe y guardar la información de la propiedad
+    const resultadosFiltrados = programe?.reduce((resultados, objeto) => {
+      for (const [propiedad, subarreglo] of Object.entries(objeto)) {
+        const propiedadEncontrada = contieneIdYPropiedad(propiedad, subarreglo);
+        if (propiedadEncontrada) {
+          resultados.push({ ...objeto, propiedad: propiedadEncontrada });
         }
       }
-    }
-  };
-  useEffect(() => {
-    userProgrammed();
-  }, [programe]);
+      return resultados;
+    }, []);
+    setModalVisible(true);
+    setProgramedInPrograms(resultadosFiltrados);
+  }, []);
+
   //Obtener los datos del usuario Autentificado//
 
   useEffect(() => {
@@ -95,12 +114,37 @@ const Dashboard = () => {
       </View>
     );
   };
+
+  const confirm = (program, index) => {
+    const referencia = ref(
+      database,
+      `Programe/${program.id}/${program.propiedad}`
+    );
+    const updatedList = programedInPrograms[index][program.propiedad].map(
+      (item) => {
+        return {
+          ...item,
+          particip: item.id === userId ? true : item.particip,
+        };
+      }
+    );
+    const newList = program[program.propiedad].filter((item) => {
+      item.id === userId && item.particip === false;
+    });
+    console.log(newList);
+
+    set(referencia, updatedList)
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((error) => {
+        console.log("error", error);
+      });
+  };
+
   const closeProgram = () => {
     setModalVisible(!modalVisible);
   };
-  // if (programedInPrograms?.length > 0) {
-  //   setModalVisible(true);
-  // }
   return (
     <LinearGradient
       style={styles.background}
@@ -143,16 +187,18 @@ const Dashboard = () => {
                   <View style={styles.container}>
                     <FlatList
                       data={programedInPrograms}
-                      renderItem={({ item }) => (
+                      renderItem={({ item, index }) => (
                         <View style={styles.item}>
-                          <Text>{JSON.stringify(item)}</Text>
+                          <Text>{JSON.stringify(item.data)}</Text>
+                          <Text>Slujba: {JSON.stringify(item.propiedad)}</Text>
+                          {/* {item.particip} */}
                           <View style={styles.buttonsContainer}>
-                            <Pressable
+                            <TouchableOpacity
                               style={[styles.button, styles.buttonClose]}
-                              onPress={closeProgram}
+                              onPress={() => confirm(item, index)}
                             >
                               <Text style={styles.textStyle}> PARTICIP</Text>
-                            </Pressable>
+                            </TouchableOpacity>
                             <Pressable
                               style={[styles.button, styles.buttonClose]}
                               onPress={closeProgram}
@@ -162,7 +208,7 @@ const Dashboard = () => {
                           </View>
                         </View>
                       )}
-                      keyExtractor={(item) => item}
+                      keyExtractor={(item) => item.propiedad}
                       ItemSeparatorComponent={myItemSeparator}
                       ListEmptyComponent={myListEmpty}
                       ListHeaderComponent={() => (

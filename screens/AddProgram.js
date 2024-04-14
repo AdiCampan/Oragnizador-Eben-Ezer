@@ -77,24 +77,6 @@ const AddProgram = () => {
   const optionsProjector = generateOptions(users, "proiector");
   const optionsAudioMixer = generateOptions(users, "mixer");
 
-  // useEffect(() => {
-  //   const transformarDatos = (datos) => {
-  //     datos?.map((elemento) => ({
-  //       id: elemento,
-  //       particip: false,
-  //     }));
-
-  //     setVociModificate(transformarDatos(voci));
-  //     setPianModificate(transformarDatos(pian));
-  //     setOrgaModificate(transformarDatos(orga));
-  //     setChitaraModificate(transformarDatos(chitara));
-  //     setBassModificate(transformarDatos(bass));
-  //     setTobeModificate(transformarDatos(tobe));
-  //     setAudioMixerModificate(transformarDatos(audioMixer));
-  //     setProiectorModificate(transformarDatos(projector));
-  //   };
-  // }, [voci, pian, orga, chitara, bass, tobe, audioMixer, projector]);
-
   //Anadimos "particip" a las personas que seteamos al "program"
   useEffect(() => {
     const newCustomValues = voci?.map((elemento) => ({
