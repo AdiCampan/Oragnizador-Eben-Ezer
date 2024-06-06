@@ -12,6 +12,7 @@ import {
   Switch,
   FlatList,
   Pressable,
+  Platform,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { getAuth, signOut } from "firebase/auth";
@@ -30,7 +31,10 @@ import {
 } from "firebase/database";
 import { SimpleLineIcons } from "@expo/vector-icons";
 import { StateContext } from "../context";
-import { v4 as uuidv4 } from "uuid";
+import { stringify, v4 as uuidv4 } from "uuid";
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
+import Constants from "expo-constants";
 
 const Dashboard = () => {
   const [users, setUsers, grupuri, setGrupuri, programe] =
@@ -40,46 +44,85 @@ const Dashboard = () => {
   const userId = auth.currentUser.uid;
   const userRef = ref(database, `Usuarios/${userId}`);
 
+  // const [expoPushToken, setExpoPushToken] = useState();
   const [modalVisible, setModalVisible] = useState(false);
   const [user, setUser] = useState("");
   const [programedInPrograms, setProgramedInPrograms] = useState();
-  const [disponibil, setDisponibil] = useState(true);
+  const [disponibil, setDisponibil] = useState();
+  const [participConfirm, setParticipConfirm] = useState(false);
 
   const image = require("../Components/Logotipos Finales/Símbolos/White/MedioLogo.png");
 
-  const toggleDisponibil = () =>
+  async function sendPushNotification(expoPushToken) {
+    const message = {
+      to: expoPushToken,
+      sound: "default",
+      title: "Mesaj de la Ebenetizer",
+      body: "Saluuut!",
+      data: { someData: "goes here" },
+    };
+
+    await fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Accept-encoding": "gzip, deflate",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(message),
+    });
+  }
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
+  console.log("user", user.token);
+
+  const toggleDisponibil = () => {
     setDisponibil((previousState) => !previousState);
-  const newData = { disponibil: disponibil };
+  };
   useEffect(() => {
-    update(userRef, newData)
-      .then(() => {})
-      .catch((err) => console.error(err));
+    if (user) {
+      const newData = { disponibil: disponibil };
+      update(userRef, newData)
+        .then(() => {})
+        .catch((err) => console.error(err));
+    }
   }, [disponibil]);
 
   useEffect(() => {
-    // Función para verificar si un ID está presente en un arreglo y retornar la propiedad
+    // Función para verificar si un ID está presente en "programe" y retornar la propiedad y el valor de "particip"
     const contieneIdYPropiedad = (propiedad, subarreglo) => {
-      if (
-        Array.isArray(subarreglo) &&
-        subarreglo.some((objeto) => objeto.id === userId)
-      ) {
-        return propiedad;
+      if (Array.isArray(subarreglo)) {
+        const objetoEncontrado = subarreglo.find(
+          (objeto) => objeto.id === userId
+        );
+        if (objetoEncontrado) {
+          return { propiedad, particip: objetoEncontrado.particip };
+        }
       }
     };
 
-    // Filtrar programe y guardar la información de la propiedad
+    // Filtrar programe y guardar la información de la propiedad y el valor de "particip"
     const resultadosFiltrados = programe?.reduce((resultados, objeto) => {
       for (const [propiedad, subarreglo] of Object.entries(objeto)) {
-        const propiedadEncontrada = contieneIdYPropiedad(propiedad, subarreglo);
-        if (propiedadEncontrada) {
-          resultados.push({ ...objeto, propiedad: propiedadEncontrada });
+        const infoEncontrada = contieneIdYPropiedad(propiedad, subarreglo);
+        if (infoEncontrada) {
+          resultados.push({
+            ...objeto,
+            propiedad: infoEncontrada.propiedad,
+            particip: infoEncontrada.particip,
+          });
         }
       }
       return resultados;
     }, []);
     setModalVisible(true);
     setProgramedInPrograms(resultadosFiltrados);
-  }, []);
+  }, [participConfirm]);
 
   //Obtener los datos del usuario Autentificado//
 
@@ -87,6 +130,7 @@ const Dashboard = () => {
     onValue(userRef, (snapshot) => {
       const data = snapshot.val();
       setUser(data);
+      setDisponibil(data.disponibil);
     });
   }, []);
 
@@ -114,8 +158,8 @@ const Dashboard = () => {
       </View>
     );
   };
-
   const confirm = (program, index) => {
+    setParticipConfirm(true);
     const referencia = ref(
       database,
       `Programe/${program.id}/${program.propiedad}`
@@ -128,14 +172,9 @@ const Dashboard = () => {
         };
       }
     );
-    const newList = program[program.propiedad].filter((item) => {
-      item.id === userId && item.particip === false;
-    });
-    console.log(newList);
-
     set(referencia, updatedList)
       .then((data) => {
-        console.log(data);
+        // console.log(data);
       })
       .catch((error) => {
         console.log("error", error);
@@ -160,16 +199,19 @@ const Dashboard = () => {
           color="black"
           onPress={onLogOut}
         />
-        <View style={styles.disponibil}>
-          <Text>Disponibil: </Text>
-          <Switch
-            trackColor={{ false: "#767577", true: "#81b0ff" }}
-            thumbColor={disponibil ? "#98fb98" : "#d3d3d3"}
-            ios_backgroundColor="#3e3e3e"
-            onValueChange={toggleDisponibil}
-            value={disponibil}
-          />
-        </View>
+        {user && (
+          <View style={styles.disponibil}>
+            <Text>Disponibil: </Text>
+            <Switch
+              trackColor={{ false: "#767577", true: "#81b0ff" }}
+              thumbColor={user.disponibil ? "#98fb98" : "#d3d3d3"}
+              ios_backgroundColor="#3e3e3e"
+              onValueChange={toggleDisponibil}
+              value={user.disponibil}
+            />
+          </View>
+        )}
+
         <Text style={styles.title}>ORGANIZARE PROGRAME</Text>
         {programedInPrograms?.length > 0 && (
           <View>
@@ -191,24 +233,31 @@ const Dashboard = () => {
                         <View style={styles.item}>
                           <Text>{JSON.stringify(item.data)}</Text>
                           <Text>Slujba: {JSON.stringify(item.propiedad)}</Text>
-                          {/* {item.particip} */}
-                          <View style={styles.buttonsContainer}>
-                            <TouchableOpacity
-                              style={[styles.button, styles.buttonClose]}
-                              onPress={() => confirm(item, index)}
-                            >
-                              <Text style={styles.textStyle}> PARTICIP</Text>
-                            </TouchableOpacity>
-                            <Pressable
-                              style={[styles.button, styles.buttonClose]}
-                              onPress={closeProgram}
-                            >
-                              <Text style={styles.textStyle}> NU PARTICIP</Text>
-                            </Pressable>
-                          </View>
+                          {item.particip === false && (
+                            <View style={styles.buttonsContainer}>
+                              <TouchableOpacity
+                                style={[styles.button, styles.buttonClose]}
+                                onPress={() => confirm(item, index)}
+                              >
+                                <Text style={styles.textStyle}> PARTICIP</Text>
+                              </TouchableOpacity>
+                              <Pressable
+                                style={[styles.button, styles.buttonClose]}
+                                onPress={closeProgram}
+                              >
+                                <Text style={styles.textStyle}>
+                                  {" "}
+                                  NU PARTICIP
+                                </Text>
+                              </Pressable>
+                            </View>
+                          )}
                         </View>
                       )}
-                      keyExtractor={(item) => item.propiedad}
+                      keyExtractor={(item) =>
+                        `${JSON.stringify(item.data)}` +
+                        `${JSON.stringify(item.propiedad)}`
+                      }
                       ItemSeparatorComponent={myItemSeparator}
                       ListEmptyComponent={myListEmpty}
                       ListHeaderComponent={() => (
@@ -237,12 +286,32 @@ const Dashboard = () => {
           </View>
         )}
         <View style={styles.butonsContainer}>
+          <TouchableOpacity
+            onPress={async () => {
+              await sendPushNotification(user.token);
+            }}
+          >
+            <LinearGradient
+              colors={["#004d40", "#009688"]}
+              style={styles.appButtonContainer}
+            >
+              <Text style={styles.appButtonText}>Notification</Text>
+            </LinearGradient>
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate("Grupuri")}>
             <LinearGradient
               colors={["#004d40", "#009688"]}
               style={styles.appButtonContainer}
             >
               <Text style={styles.appButtonText}>Grupuri</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setModalVisible(true)}>
+            <LinearGradient
+              colors={["#004d40", "#009688"]}
+              style={styles.appButtonContainer}
+            >
+              <Text style={styles.appButtonText}>Programarile mele</Text>
             </LinearGradient>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate("Programari")}>

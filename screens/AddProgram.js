@@ -34,6 +34,8 @@ const AddProgram = () => {
   const [audioMixerModificate, setAudioMixerModificate] = useState([]);
   const [proiectorModificate, setProiectorModificate] = useState([]);
 
+  console.log("voci", vociModificate);
+
   const setNewProgram = () => {
     if (data) {
       const programsRef = ref(database, "Programe");
@@ -60,6 +62,7 @@ const AddProgram = () => {
     setData(date.toLocaleString());
   };
 
+  //generamos 'value y 'label' para la lista de datos en "options" para "Multiselect"
   const generateOptions = (users, filterProperty) => {
     return users
       ?.filter(

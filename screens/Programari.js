@@ -32,6 +32,7 @@ const Programari = () => {
   const [tobe, setTobe] = useState();
   const [projector, setProjector] = useState();
   const [audioMixer, setAudioMixer] = useState();
+  const [data, setData] = useState();
 
   const myItemSeparator = () => {
     return (
@@ -49,23 +50,23 @@ const Programari = () => {
     );
   };
 
-  const viewProgram = (id) => {
-    const programRef = ref(database, `Programe/${id}`);
+  const viewProgram = (program) => {
+    setData(program.data);
+    const programRef = ref(database, `Programe/${program.id}`);
     onValue(programRef, async (snapshot) => {
       const programSnapshot = await snapshot.val();
       setProgram(programSnapshot);
-      setVoci(programSnapshot.voci?.map((voce) => voce.id));
-      setPian(programSnapshot.pian?.map((pian) => pian.id));
-      setOrga(programSnapshot.orga?.map((orga) => orga.id));
-      setChitara(programSnapshot.chitara?.map((chitara) => chitara.id));
-      setBass(programSnapshot.bass?.map((bass) => bass.id));
-      setTobe(programSnapshot.tobe?.map((tobe) => tobe.id));
-      setProjector(programSnapshot.projector?.map((projector) => projector.id));
-      setAudioMixer(programSnapshot?.audioMixer?.map((mixer) => mixer.id));
+      setVoci(programSnapshot.voci?.map((voce) => voce));
+      setPian(programSnapshot.pian?.map((pian) => pian));
+      setOrga(programSnapshot.orga?.map((orga) => orga));
+      setChitara(programSnapshot.chitara?.map((chitara) => chitara));
+      setBass(programSnapshot.bass?.map((bass) => bass));
+      setTobe(programSnapshot.tobe?.map((tobe) => tobe));
+      setProjector(programSnapshot.projector?.map((projector) => projector));
+      setAudioMixer(programSnapshot?.audioMixer?.map((mixer) => mixer));
     });
     setModalVisible(true);
   };
-  // console.log("program", program.pian);
   const closeProgram = () => {
     setProgram(undefined);
     setModalVisible(!modalVisible);
@@ -113,48 +114,47 @@ const Programari = () => {
       data: audioMixerSet,
     },
   ];
-  console.log("pian", pian);
   //Buscamos el nombre de user por el ID de "voci' (desde "Programe")
   if (users && program) {
     for (let user of users) {
       for (let item of voci ? voci : []) {
-        if (user.id === item) {
-          vociSet.push(user.name);
+        if (user.id === item.id) {
+          vociSet.push({ user: user.name, particip: item.particip });
         }
       }
       for (let item of pian ? pian : []) {
-        if (user.id === item) {
-          pianSet.push(user.name);
+        if (user.id === item.id) {
+          pianSet.push({ user: user.name, particip: item.particip });
         }
       }
       for (let item of orga ? orga : []) {
-        if (user.id === item) {
-          orgaSet.push(user.name);
+        if (user.id === item.id) {
+          orgaSet.push({ user: user.name, particip: item.particip });
         }
       }
       for (let item of chitara ? chitara : []) {
-        if (user.id === item) {
-          chitaraSet.push(user.name);
+        if (user.id === item.id) {
+          chitaraSet.push({ user: user.name, particip: item.particip });
         }
       }
       for (let item of bass ? bass : []) {
-        if (user.id === item) {
-          bassSet.push(user.name);
+        if (user.id === item.id) {
+          bassSet.push({ user: user.name, particip: item.particip });
         }
       }
       for (let item of tobe ? tobe : []) {
-        if (user.id === item) {
-          tobeSet.push(user.name);
+        if (user.id === item.id) {
+          tobeSet.push({ user: user.name, particip: item.particip });
         }
       }
       for (let item of projector ? projector : []) {
-        if (user.id === item) {
-          proiectorSet.push(user.name);
+        if (user.id === item.id) {
+          proiectorSet.push({ user: user.name, particip: item.particip });
         }
       }
       for (let item of audioMixer ? audioMixer : []) {
-        if (user.id === item) {
-          audioMixerSet.push(user.name);
+        if (user.id === item.id) {
+          audioMixerSet.push({ user: user.name, particip: item.particip });
         }
       }
     }
@@ -165,10 +165,8 @@ const Programari = () => {
       <FlatList
         data={programe}
         renderItem={({ item }) => (
-          <Pressable onPress={() => viewProgram(item.id)} style={styles.item}>
-            <Text onPress={() => viewProgram(item.id)}>
-              {JSON.stringify(item.data)}
-            </Text>
+          <Pressable onPress={() => viewProgram(item)} style={styles.item}>
+            <Text>{JSON.stringify(item.data)}</Text>
           </Pressable>
         )}
         keyExtractor={(item) => item.id}
@@ -202,34 +200,31 @@ const Programari = () => {
             <View style={styles.centeredView}>
               <View style={styles.modalView}>
                 <View style={styles.container}>
-                  <Text
-                    style={{
-                      fontSize: 20,
-                      fontWeight: "900",
-                      textAlign: "center",
-
-                      textDecorationColor: "red",
-                    }}
-                  >
-                    PROGRAMARI
-                  </Text>
+                  <Text style={styles.title}>{data}</Text>
                   <SectionList
                     sections={DATA}
                     keyExtractor={(item, index) => item + index}
                     renderItem={({ item }) => (
                       <View style={styles.taskItemView}>
-                        <Text style={styles.taskItem}>{item}</Text>
-                        {item.confi}
-                        <Feather name="check" size={24} color="black" />
-                        <AntDesign
-                          name="exclamationcircleo"
-                          size={24}
-                          color="black"
-                        />
+                        <Text style={styles.taskItem}>{item.user}</Text>
+                        {item.particip === true ? (
+                          <Feather name="check" size={24} color="black" />
+                        ) : (
+                          <AntDesign
+                            name="exclamationcircleo"
+                            size={24}
+                            color="black"
+                          />
+                        )}
                       </View>
                     )}
+                    SectionSeparatorComponent={() => (
+                      <View style={styles.sectionSeparator} />
+                    )}
                     renderSectionHeader={({ section: { title } }) => (
-                      <Text style={styles.taskTitle}>{title}</Text>
+                      <View style={styles.divider}>
+                        <Text style={styles.taskTitle}>{title}</Text>
+                      </View>
                     )}
                   />
                 </View>
@@ -319,9 +314,20 @@ const styles = StyleSheet.create({
     paddingTop: 22,
     width: "80%",
   },
+  title: {
+    width: "auto",
+    padding: 10,
+    fontSize: 15,
+    fontWeight: "900",
+    textAlign: "center",
+    backgroundColor: "#f0ffff",
+  },
   taskItemView: {
+    alignItems: "center",
     display: "flex",
     flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 13,
   },
   taskItem: {
     padding: 5,
@@ -329,16 +335,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   taskTitle: {
+    width: "100%",
     textAlign: "center",
-    borderWidth: 3,
-    borderColor: "#d3d3d3",
+    borderBottomWidth: 1,
+    borderBottomColor: "gray",
     backgroundColor: "#ffffff",
-    fontSize: 15,
+    fontSize: 20,
     fontWeight: "bold",
-    padding: 10,
+    paddingTop: 10,
     elevation: 9,
-    margin: 10,
     marginBottom: 0,
-    borderRadius: 10,
+  },
+  divider: {
+    borderBottomWidth: 1,
+    borderBottomColor: "gray",
   },
 });
