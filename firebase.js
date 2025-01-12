@@ -5,21 +5,26 @@ import { getDatabase } from "firebase/database";
 import { getAuth } from "firebase/auth";
 import { initializeAuth, getReactNativePersistence } from "firebase/auth";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
+import { API_KEY } from "@env";
+import { DATA_BASE_URL } from "@env";
+import { AUTH_DOMAIN } from "@env";
+import { PROJECT_ID } from "@env";
+import { STORAGE_BUCKET } from "@env";
+import { MESSAGING_SENDER_ID } from "@env";
+import { APP_ID } from "@env";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDCLvO6kslY5NYdS2JzWeh5AqVWHSoAcd0",
-  authDomain: "organizer-ee1d1.firebaseapp.com",
-  projectId: "organizer-ee1d1",
-  storageBucket: "organizer-ee1d1.appspot.com",
-  messagingSenderId: "439942894629",
-  appId: "1:439942894629:web:b888ddc1ce5bf24d1adbcc",
-
-  databaseURL:
-    "https://organizer-ee1d1-default-rtdb.europe-west1.firebasedatabase.app/",
+  apiKey: API_KEY,
+  authDomain: AUTH_DOMAIN,
+  projectId: PROJECT_ID,
+  storageBucket: STORAGE_BUCKET,
+  messagingSenderId: MESSAGING_SENDER_ID,
+  appId: APP_ID,
+  databaseURL: DATA_BASE_URL,
   // database:
   //   "https://organizer-ee1d1-default-rtdb.europe-west1.firebasedatabase.app",
 };
